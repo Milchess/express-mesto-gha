@@ -1,12 +1,28 @@
 const express = require('express');
+const mongoose = require('mongoose');
+const {
+  userRoutes,
+  cardRoutes,
+} = require('./routes/index');
 
 const { PORT = 3000 } = process.env;
 const app = express();
 
-app.get('/', (req, res) => {
-  res.send('Hello World');
+app.use((req, res, next) => {
+  req.user = {
+    _id: '63bc44c5fb0839f92599a9f0',
+  };
+
+  next();
 });
 
-app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}`);
-});
+app.use(userRoutes);
+app.use(cardRoutes);
+
+async function main() {
+  await mongoose.connect('mongodb://localhost:27017/mestodb');
+  app.listen(PORT);
+  console.log(`Сервер запущен на ${PORT} порту`);
+}
+
+main();
