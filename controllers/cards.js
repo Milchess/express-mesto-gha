@@ -1,23 +1,87 @@
 const Card = require('../models/card');
 
 const getCards = async (req, res) => {
-  await Card.find({})
-    .then((cards) => res.status(200).send(cards))
-    .catch((err) => res.status(500).send(err.message));
+  try {
+    const cards = await Card.find({});
+    res.status(200).send(cards);
+  } catch (err) {
+    res.status(500).send({ message: `Ошибка ${err}` });
+  }
 };
 
 const createCard = async (req, res) => {
-  await Card.create({
-    owner: req.user._id, ...req.body,
-  })
-    .then((card) => res.status(200).send(card))
-    .catch((err) => res.status(500).send(err.message));
+  try {
+    const card = await Card.create({
+      owner: req.user._id, ...req.body,
+    });
+    res.status(200).send(card);
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      res.status(400).send({ message: 'Переданы неккоректные данные' });
+    } else {
+      res.status(500).send({ message: `Ошибка ${err}` });
+    }
+  }
 };
 
 const deleteCard = async (req, res) => {
-  await Card.findByIdAndRemove(req.params.id)
-    .then(res.status(200).send({ message: 'Карточка удалена' }))
-    .catch(res.status(500).send({ message: 'Такой карточки не существует' }));
+  let message = 'Карточка удалена';
+  let status = 200;
+  try {
+    const card = await Card.findByIdAndRemove(req.params.cardId);
+    if (!card) {
+      message = 'Карточка с указанным id не найдена';
+      status = 404;
+    }
+  } catch (err) {
+    message = `Ошибка ${err}`;
+    status = 500;
+  }
+  res.status(status).send({ message });
 };
 
-module.exports = { getCards, createCard, deleteCard };
+const likeCard = async (req, res) => {
+  try {
+    const card = await Card.findByIdAndUpdate(
+      req.params.cardId,
+      { $addToSet: { likes: req.user._id } },
+      { new: true },
+    );
+    if (!card) {
+      res.status(404).send('Карточка с указанным id не найдена');
+    } else {
+      res.status(200).send(card);
+    }
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      res.status(400).send({ message: 'Переданы неккоректные данные' });
+    } else {
+      res.status(500).send({ message: `Ошибка ${err}` });
+    }
+  }
+};
+
+const dislikeCard = async (req, res) => {
+  try {
+    const card = await Card.findByIdAndUpdate(
+      req.params.cardId,
+      { $pull: { likes: req.user._id } },
+      { new: true },
+    );
+    if (!card) {
+      res.status(404).send('Карточка с указанным id не найдена');
+    } else {
+      res.status(200).send(card);
+    }
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      res.status(400).send({ message: 'Переданы неккоректные данные' });
+    } else {
+      res.status(500).send({ message: `Ошибка ${err}` });
+    }
+  }
+};
+
+module.exports = {
+  getCards, createCard, deleteCard, likeCard, dislikeCard,
+};
