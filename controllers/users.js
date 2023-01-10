@@ -11,14 +11,18 @@ const getUsers = async (req, res) => {
 
 const getUser = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    const user = await User.findById({ _id: req.params.userId });
     if (!user) {
-      res.status(404).send('Пользователь с указанным id не найдена');
+      res.status(404).send({ message: 'Пользователь с указанным id не найден' });
     } else {
       res.status(200).send(user);
     }
   } catch (err) {
-    res.status(500).send({ message: `Ошибка ${err}` });
+    if (err.name === 'CastError') {
+      res.status(400).send({ message: 'Переданы неккоректные данные' });
+    } else {
+      res.status(500).send({ message: `Ошибка ${err}` });
+    }
   }
 };
 
@@ -35,9 +39,31 @@ const createUser = async (req, res) => {
   }
 };
 
-const updateUserInfo = async (req, res) => {
+const updateProfile = async (req, res) => {
   try {
-    const user = await User.findByIdAndUpdate(req.user._id, req.body);
+    const user = await User.findByIdAndUpdate(req.user._id, {
+      name: req.body.name,
+      about: req.body.about,
+    });
+    if (!user) {
+      res.status(404).send('Пользователь с указанным id не найдена');
+    } else {
+      res.status(200).send(user);
+    }
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      res.status(400).send({ message: 'Переданы неккоректные данные' });
+    } else {
+      res.status(500).send({ message: `Ошибка ${err}` });
+    }
+  }
+};
+
+const updateAvatar = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(req.user._id, {
+      avatar: req.body.avatar,
+    });
     if (!user) {
       res.status(404).send('Пользователь с указанным id не найдена');
     } else {
@@ -53,5 +79,5 @@ const updateUserInfo = async (req, res) => {
 };
 
 module.exports = {
-  getUsers, getUser, createUser, updateUserInfo,
+  getUsers, getUser, createUser, updateProfile, updateAvatar,
 };

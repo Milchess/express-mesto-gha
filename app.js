@@ -17,9 +17,13 @@ app.use((req, res, next) => {
 app.use(userRoutes);
 app.use(cardRoutes);
 
+app.all('*', (req, res) => {
+  res.status(404).send({ message: 'Страница не найдена' });
+});
+
 async function main() {
   await mongoose.connect('mongodb://localhost:27017/mestodb');
-  app.listen(PORT);
+  await app.listen(PORT);
   console.log(`Сервер запущен на ${PORT} порту`);
 }
 

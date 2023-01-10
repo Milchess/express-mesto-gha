@@ -30,8 +30,8 @@ const deleteCard = async (req, res) => {
   try {
     const card = await Card.findByIdAndRemove(req.params.cardId);
     if (!card) {
-      message = 'Карточка с указанным id не найдена';
-      status = 404;
+      message = 'Переданы неккоректные данные';
+      status = 400;
     }
   } catch (err) {
     message = `Ошибка ${err}`;
@@ -48,9 +48,9 @@ const likeCard = async (req, res) => {
       { new: true },
     );
     if (!card) {
-      res.status(404).send('Карточка с указанным id не найдена');
+      res.status(404).send({ message: 'Карточка с указанным id не найдена' });
     } else {
-      res.status(200).send(card);
+      res.status(200).send({ message: 'Лайк карточке поставлен' });
     }
   } catch (err) {
     if (err.name === 'ValidationError') {
@@ -69,9 +69,9 @@ const dislikeCard = async (req, res) => {
       { new: true },
     );
     if (!card) {
-      res.status(404).send('Карточка с указанным id не найдена');
+      res.status(404).send({ message: 'Карточка с указанным id не найдена' });
     } else {
-      res.status(200).send(card);
+      res.status(200).send({ message: 'Лайк удален у карточки' });
     }
   } catch (err) {
     if (err.name === 'ValidationError') {
