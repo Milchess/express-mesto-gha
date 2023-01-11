@@ -25,19 +25,20 @@ const createCard = async (req, res) => {
 };
 
 const deleteCard = async (req, res) => {
-  let message = 'Карточка удалена';
-  let status = 200;
   try {
-    const card = await Card.findByIdAndRemove(req.params.cardId);
+    const card = await Card.findById(req.params.cardId);
     if (!card) {
-      message = 'Переданы неккоректные данные';
-      status = 400;
+      res.status(404).send({ message: 'Карточка с указанным id не найдена' });
     }
+    card.remove();
+    res.status(200).send({ message: 'Карточка удалена' });
   } catch (err) {
-    message = `Ошибка ${err}`;
-    status = 500;
+    if (err.name === 'CastError') {
+      res.status(400).send({ message: 'Переданы неккоректные данные' });
+    } else {
+      res.status(500).send({ message: `Ошибка ${err}` });
+    }
   }
-  res.status(status).send({ message });
 };
 
 const likeCard = async (req, res) => {
@@ -53,7 +54,7 @@ const likeCard = async (req, res) => {
       res.status(200).send({ message: 'Лайк карточке поставлен' });
     }
   } catch (err) {
-    if (err.name === 'ValidationError') {
+    if (err.name === 'CastError') {
       res.status(400).send({ message: 'Переданы неккоректные данные' });
     } else {
       res.status(500).send({ message: `Ошибка ${err}` });
@@ -74,7 +75,7 @@ const dislikeCard = async (req, res) => {
       res.status(200).send({ message: 'Лайк удален у карточки' });
     }
   } catch (err) {
-    if (err.name === 'ValidationError') {
+    if (err.name === 'CastError') {
       res.status(400).send({ message: 'Переданы неккоректные данные' });
     } else {
       res.status(500).send({ message: `Ошибка ${err}` });

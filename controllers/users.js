@@ -44,12 +44,11 @@ const updateProfile = async (req, res) => {
     const user = await User.findByIdAndUpdate(req.user._id, {
       name: req.body.name,
       about: req.body.about,
-    });
+    }, { new: true, runValidators: true });
     if (!user) {
       res.status(404).send('Пользователь с указанным id не найдена');
-    } else {
-      res.status(200).send(user);
     }
+    res.status(200).send(user);
   } catch (err) {
     if (err.name === 'ValidationError') {
       res.status(400).send({ message: 'Переданы неккоректные данные' });
@@ -63,12 +62,11 @@ const updateAvatar = async (req, res) => {
   try {
     const user = await User.findByIdAndUpdate(req.user._id, {
       avatar: req.body.avatar,
-    });
+    }, { new: true, runValidators: true });
     if (!user) {
       res.status(404).send('Пользователь с указанным id не найдена');
-    } else {
-      res.status(200).send(user);
     }
+    res.status(200).send(user);
   } catch (err) {
     if (err.name === 'ValidationError') {
       res.status(400).send({ message: 'Переданы неккоректные данные' });
