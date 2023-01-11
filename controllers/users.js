@@ -46,7 +46,7 @@ const updateProfile = async (req, res) => {
       about: req.body.about,
     }, { new: true, runValidators: true });
     if (!user) {
-      res.status(404).send('Пользователь с указанным id не найдена');
+      res.status(404).send('Пользователь с указанным id не найден');
     }
     res.status(200).send(user);
   } catch (err) {
@@ -64,7 +64,7 @@ const updateAvatar = async (req, res) => {
       avatar: req.body.avatar,
     }, { new: true, runValidators: true });
     if (!user) {
-      res.status(404).send('Пользователь с указанным id не найдена');
+      res.status(404).send('Пользователь с указанным id не найден');
     }
     res.status(200).send(user);
   } catch (err) {
