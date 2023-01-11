@@ -47,8 +47,9 @@ const updateProfile = async (req, res) => {
     }, { new: true, runValidators: true });
     if (!user) {
       res.status(404).send('Пользователь с указанным id не найден');
+    } else {
+      res.status(200).send(user);
     }
-    res.status(200).send(user);
   } catch (err) {
     if (err.name === 'ValidationError') {
       res.status(400).send({ message: 'Переданы неккоректные данные' });
@@ -65,8 +66,9 @@ const updateAvatar = async (req, res) => {
     }, { new: true, runValidators: true });
     if (!user) {
       res.status(404).send('Пользователь с указанным id не найден');
+    } else {
+      res.status(200).send(user);
     }
-    res.status(200).send(user);
   } catch (err) {
     if (err.name === 'ValidationError') {
       res.status(400).send({ message: 'Переданы неккоректные данные' });
