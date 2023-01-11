@@ -1,11 +1,16 @@
 const Card = require('../models/card');
 
+const SUCCESS_CODE = 200;
+const DATA_CODE = 400;
+const ID_CODE = 404;
+const SERVER_CODE = 500;
+
 const getCards = async (req, res) => {
   try {
     const cards = await Card.find({});
-    res.status(200).send(cards);
+    res.status(SUCCESS_CODE).send(cards);
   } catch (err) {
-    res.status(500).send({ message: `Ошибка ${err}` });
+    res.status(SERVER_CODE).send({ message: 'Произошла ошибка' });
   }
 };
 
@@ -14,12 +19,12 @@ const createCard = async (req, res) => {
     const card = await Card.create({
       owner: req.user._id, ...req.body,
     });
-    res.status(200).send(card);
+    res.status(SUCCESS_CODE).send(card);
   } catch (err) {
     if (err.name === 'ValidationError') {
-      res.status(400).send({ message: 'Переданы неккоректные данные' });
+      res.status(DATA_CODE).send({ message: 'Переданы неккоректные данные' });
     } else {
-      res.status(500).send({ message: `Ошибка ${err}` });
+      res.status(SERVER_CODE).send({ message: 'Произошла ошибка' });
     }
   }
 };
@@ -28,16 +33,16 @@ const deleteCard = async (req, res) => {
   try {
     const card = await Card.findById(req.params.cardId);
     if (!card) {
-      res.status(404).send({ message: 'Карточка с указанным id не найдена' });
+      res.status(ID_CODE).send({ message: 'Карточка с указанным id не найдена' });
     } else {
-      card.remove();
-      res.status(200).send({ message: 'Карточка удалена' });
+      await card.remove();
+      res.status(SUCCESS_CODE).send({ message: 'Карточка удалена' });
     }
   } catch (err) {
     if (err.name === 'CastError') {
-      res.status(400).send({ message: 'Переданы неккоректные данные' });
+      res.status(DATA_CODE).send({ message: 'Переданы неккоректные данные' });
     } else {
-      res.status(500).send({ message: `Ошибка ${err}` });
+      res.status(SERVER_CODE).send({ message: 'Произошла ошибка' });
     }
   }
 };
@@ -50,15 +55,15 @@ const likeCard = async (req, res) => {
       { new: true },
     );
     if (!card) {
-      res.status(404).send({ message: 'Карточка с указанным id не найдена' });
+      res.status(ID_CODE).send({ message: 'Карточка с указанным id не найдена' });
     } else {
-      res.status(200).send({ message: 'Лайк карточке поставлен' });
+      res.status(SUCCESS_CODE).send({ message: 'Лайк карточке поставлен' });
     }
   } catch (err) {
     if (err.name === 'CastError') {
-      res.status(400).send({ message: 'Переданы неккоректные данные' });
+      res.status(DATA_CODE).send({ message: 'Переданы неккоректные данные' });
     } else {
-      res.status(500).send({ message: `Ошибка ${err}` });
+      res.status(SERVER_CODE).send({ message: 'Произошла ошибка' });
     }
   }
 };
@@ -71,15 +76,15 @@ const dislikeCard = async (req, res) => {
       { new: true },
     );
     if (!card) {
-      res.status(404).send({ message: 'Карточка с указанным id не найдена' });
+      res.status(ID_CODE).send({ message: 'Карточка с указанным id не найдена' });
     } else {
-      res.status(200).send({ message: 'Лайк удален у карточки' });
+      res.status(SUCCESS_CODE).send({ message: 'Лайк удален у карточки' });
     }
   } catch (err) {
     if (err.name === 'CastError') {
-      res.status(400).send({ message: 'Переданы неккоректные данные' });
+      res.status(DATA_CODE).send({ message: 'Переданы неккоректные данные' });
     } else {
-      res.status(500).send({ message: `Ошибка ${err}` });
+      res.status(SERVER_CODE).send({ message: 'Произошла ошибка' });
     }
   }
 };
