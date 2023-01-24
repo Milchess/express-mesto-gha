@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const { celebrate, Joi } = require('celebrate');
+const { celebrate, Joi, errors } = require('celebrate');
 const userRoutes = require('./routes/users');
 const cardRoutes = require('./routes/cards');
 
@@ -62,6 +62,8 @@ app.all('*', (req, res, next) => {
     next();
   }
 });
+
+app.use(errors());
 
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
