@@ -35,8 +35,13 @@ const deleteCard = async (req, res) => {
     if (!card) {
       res.status(ID_CODE).send({ message: 'Карточка с указанным id не найдена' });
     } else {
-      await card.remove();
-      res.status(SUCCESS_CODE).send({ message: 'Карточка удалена' });
+      const cardOwner = card.owner._id.toString();
+      if (cardOwner === req.user._id) {
+        await card.remove();
+        res.status(SUCCESS_CODE).send({ message: 'Карточка удалена' });
+      } else {
+        res.status(ID_CODE).send({ message: 'Нельзя удалять карточку созданную не вами' });
+      }
     }
   } catch (err) {
     if (err.name === 'CastError') {
