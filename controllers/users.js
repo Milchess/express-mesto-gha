@@ -1,7 +1,10 @@
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 const SUCCESS_CODE = 200;
 const DATA_CODE = 400;
+const AUTH_CODE = 401;
 const ID_CODE = 404;
 const SERVER_CODE = 500;
 
@@ -32,8 +35,15 @@ const getUser = async (req, res) => {
 };
 
 const createUser = async (req, res) => {
+  if (!req.body.email || !req.body.password) {
+    res.status(AUTH_CODE).send({ message: 'Введите логин или пароль' });
+  }
   try {
-    const user = await User.create(req.body);
+    const user = await bcrypt.hash(req.body.password, 10)
+      .then((hash) => User.create({
+        ...req.body,
+        password: hash,
+      }));
     res.status(SUCCESS_CODE).send(user);
   } catch (err) {
     if (err.name === 'ValidationError') {
@@ -83,6 +93,39 @@ const updateAvatar = async (req, res) => {
   }
 };
 
+const login = async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(AUTH_CODE).send({ message: 'Поля должны быть заполнены' });
+  }
+  try {
+    const user = User.findOne({ email }).select('+password');
+    if (!user) {
+      return res.status(ID_CODE).send({ message: 'Пользователь не найден' });
+    }
+
+    const isUserValid = await bcrypt.compare(password, user.password);
+    if (isUserValid) {
+      const token = jwt.sign({ _id: user._id }, 'super-strong-secret', { expiresIn: '7d' });
+
+      return res.status(SUCCESS_CODE).send(token);
+    }
+    return res.status(AUTH_CODE).send({ message: 'Неверный логин или пароль' });
+  } catch (e) {
+    return res.status(SERVER_CODE).send({ message: 'Произошла ошибка' });
+  }
+};
+
+const getUserInfo = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    res.status(SUCCESS_CODE).send(user);
+  } catch (e) {
+    res.status(SERVER_CODE).send({ message: 'Произошла ошибка' });
+  }
+};
+
 module.exports = {
-  getUsers, getUser, createUser, updateProfile, updateAvatar,
+  getUsers, getUser, createUser, updateProfile, updateAvatar, login, getUserInfo,
 };

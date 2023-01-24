@@ -5,6 +5,11 @@ const rateLimit = require('express-rate-limit');
 const userRoutes = require('./routes/users');
 const cardRoutes = require('./routes/cards');
 
+const {
+  login, createUser,
+} = require('./controllers/users');
+const { auth } = require('./middlewares/auth');
+
 const { PORT = 3000 } = process.env;
 const app = express();
 
@@ -20,14 +25,10 @@ app.use(limiter);
 app.use(helmet());
 app.use(express.json());
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '63bc44c5fb0839f92599a9f0',
-  };
+app.post('/signin', login);
+app.post('/signup', createUser);
 
-  next();
-});
-
+app.use(auth);
 app.use(userRoutes);
 app.use(cardRoutes);
 
