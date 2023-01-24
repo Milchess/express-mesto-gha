@@ -8,7 +8,8 @@ const cardRoutes = require('./routes/cards');
 const {
   login, createUser,
 } = require('./controllers/users');
-const { auth } = require('./middlewares/auth');
+const auth = require('./middlewares/auth');
+const NotFound = require('./errors/notFound');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -32,8 +33,24 @@ app.use(auth);
 app.use(userRoutes);
 app.use(cardRoutes);
 
-app.all('*', (req, res) => {
-  res.status(404).send({ message: 'Страница не найдена' });
+app.all('*', (req, res, next) => {
+  try {
+    next(new NotFound('Страница не найдена'));
+  } catch (err) {
+    next();
+  }
+});
+
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message } = err;
+
+  res.status(statusCode)
+    .send({
+      message: statusCode === 500
+        ? 'Произошла ошибка'
+        : message,
+    });
+  next();
 });
 
 async function main() {
