@@ -33,16 +33,33 @@ const getUser = async (req, res, next) => {
 };
 
 const createUser = async (req, res, next) => {
-  if (!req.body.email || !req.body.password) {
+  const {
+    name,
+    about,
+    avatar,
+    email,
+    password,
+  } = req.body;
+  if (!email || !password) {
     next(new Authorization('Введите логин или пароль'));
   }
   try {
-    const user = await bcrypt.hash(req.body.password, 10)
-      .then((hash) => User.create({
-        ...req.body,
-        password: hash,
-      }));
-    res.send(user);
+    const hash = await bcrypt.hash(password, 10);
+    const user = await User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    });
+    res.send({
+      email: user.email,
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+      _id: user._id,
+      __v: user.__v,
+    });
   } catch (err) {
     if (err.name === 'ValidationError') {
       next(new BadRequest('Переданы неккоректные данные'));
@@ -100,7 +117,7 @@ const login = async (req, res, next) => {
     next(new Authorization('Введите логин или пароль'));
   }
   try {
-    const user = User.findOne({ email }).select('+password');
+    const user = await User.findOne({ email }).select('+password');
     if (!user) {
       next(new NotFound('Пользователь не найден'));
     }
@@ -109,7 +126,7 @@ const login = async (req, res, next) => {
     if (isUserValid) {
       const token = jwt.sign({ _id: user._id }, 'super-strong-secret', { expiresIn: '7d' });
 
-      res.send(token);
+      res.send({ token });
     }
     next(new Authorization('Неверный логин или пароль'));
   } catch (err) {
