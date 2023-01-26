@@ -11,7 +11,7 @@ const getUsers = async (req, res, next) => {
     const users = await User.find({});
     res.send(users);
   } catch (err) {
-    next();
+    next(err);
   }
 };
 
@@ -27,7 +27,7 @@ const getUser = async (req, res, next) => {
     if (err.name === 'CastError') {
       next(new BadRequest('Переданы неккоректные данные'));
     } else {
-      next();
+      next(err);
     }
   }
 };
@@ -67,7 +67,7 @@ const createUser = async (req, res, next) => {
     } else if (err.code === 11000) {
       next(new Conflict('Данный пользователь уже существует'));
     } else {
-      next();
+      next(err);
     }
   }
 };
@@ -87,7 +87,7 @@ const updateProfile = async (req, res, next) => {
     if (err.name === 'ValidationError') {
       next(new BadRequest('Переданы неккоректные данные'));
     } else {
-      next();
+      next(err);
     }
   }
 };
@@ -106,7 +106,7 @@ const updateAvatar = async (req, res, next) => {
     if (err.name === 'ValidationError') {
       next(new BadRequest('Переданы неккоректные данные'));
     } else {
-      next();
+      next(err);
     }
   }
 };
@@ -131,7 +131,7 @@ const login = async (req, res, next) => {
     }
     next(new Authorization('Неверный логин или пароль'));
   } catch (err) {
-    next();
+    next(err);
   }
 };
 
@@ -148,7 +148,7 @@ const getUserInfo = async (req, res, next) => {
       _id: user._id,
     });
   } catch (e) {
-    next();
+    next(err);
   }
 };
 
