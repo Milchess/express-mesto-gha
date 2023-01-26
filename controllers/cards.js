@@ -1,6 +1,7 @@
 const Card = require('../models/card');
 const BadRequest = require('../errors/badRequest');
 const NotFound = require('../errors/notFound');
+const Forbidden = require('../errors/forbidden');
 
 const getCards = async (req, res, next) => {
   try {
@@ -37,7 +38,7 @@ const deleteCard = async (req, res, next) => {
         await card.remove();
         res.send({ message: 'Карточка удалена' });
       } else {
-        next(new NotFound('Нельзя удалять карточку созданную не вами'));
+        next(new Forbidden('Нельзя удалять карточку созданную не вами'));
       }
     }
   } catch (err) {

@@ -53,12 +53,13 @@ const createUser = async (req, res, next) => {
       password: hash,
     });
     res.send({
+      // eslint-disable-next-line no-underscore-dangle
+      __v: user.__v,
       email: user.email,
       name: user.name,
       about: user.about,
       avatar: user.avatar,
       _id: user._id,
-      __v: user.__v,
     });
   } catch (err) {
     if (err.name === 'ValidationError') {
@@ -119,7 +120,7 @@ const login = async (req, res, next) => {
   try {
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
-      next(new NotFound('Пользователь не найден'));
+      next(new Authorization('Пользователь не найден'));
     }
 
     const isUserValid = await bcrypt.compare(password, user.password);
@@ -137,7 +138,15 @@ const login = async (req, res, next) => {
 const getUserInfo = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
-    res.send(user);
+    res.send({
+      // eslint-disable-next-line no-underscore-dangle
+      __v: user.__v,
+      email: user.email,
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+      _id: user._id,
+    });
   } catch (e) {
     next();
   }

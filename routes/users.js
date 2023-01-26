@@ -7,7 +7,7 @@ const {
 } = require('../controllers/users');
 
 userRoutes.get('/users', getUsers);
-userRoutes.get('/user/me', getUserInfo);
+userRoutes.get('/users/me', getUserInfo);
 
 userRoutes.get(
   '/users/:userId',
