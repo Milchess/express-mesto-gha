@@ -40,9 +40,6 @@ const createUser = async (req, res, next) => {
     email,
     password,
   } = req.body;
-  if (!email || !password) {
-    next(new Authorization('Введите логин или пароль'));
-  }
   try {
     const hash = await bcrypt.hash(password, 10);
     const user = await User.create({
@@ -53,7 +50,6 @@ const createUser = async (req, res, next) => {
       password: hash,
     });
     res.send({
-      // eslint-disable-next-line no-underscore-dangle
       __v: user.__v,
       email: user.email,
       name: user.name,
@@ -113,10 +109,6 @@ const updateAvatar = async (req, res, next) => {
 
 const login = async (req, res, next) => {
   const { email, password } = req.body;
-
-  if (!email || !password) {
-    next(new Authorization('Введите логин или пароль'));
-  }
   try {
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
@@ -139,7 +131,6 @@ const getUserInfo = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
     res.send({
-      // eslint-disable-next-line no-underscore-dangle
       __v: user.__v,
       email: user.email,
       name: user.name,
@@ -147,7 +138,7 @@ const getUserInfo = async (req, res, next) => {
       avatar: user.avatar,
       _id: user._id,
     });
-  } catch (e) {
+  } catch (err) {
     next(err);
   }
 };
