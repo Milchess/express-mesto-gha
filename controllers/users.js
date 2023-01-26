@@ -50,7 +50,6 @@ const createUser = async (req, res, next) => {
       password: hash,
     });
     res.send({
-      __v: user.__v,
       email: user.email,
       name: user.name,
       about: user.about,
@@ -131,7 +130,6 @@ const getUserInfo = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
     res.send({
-      __v: user.__v,
       email: user.email,
       name: user.name,
       about: user.about,
